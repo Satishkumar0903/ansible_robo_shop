@@ -1,0 +1,28 @@
+- name: user
+  hosts: user
+  become: yes
+  tasks:
+  - name: disable old node js and new nide js
+    ansibile.builtin.command:
+
+  - name: Install node js
+    ansible.builtin.dnf:
+      name: nodejs
+      state: present
+
+  - name: create roboshop user
+    ansible.builtin.user:
+      name: roboshop
+
+  - name: Recursively remove app directory
+    ansible.builtin.file:
+    path: /app
+    state: absent
+
+  - name: creating app directory
+    ansible.builtin.file:
+    path: /app
+    state: present
+
+  - name: download user application
+
