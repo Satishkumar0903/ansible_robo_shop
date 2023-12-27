@@ -25,4 +25,61 @@
     state: present
 
   - name: download user application
+    ansible.builtin.geturl:
+      url: https://roboshop-builds.s3.amazonaws.com/user.zip
+      dest: /tmp
+
+  - name: Extract user appplication
+    ansible.builtin.unarchive:
+      src: /tmp/user.zip
+      dest: /app 
+      remote_src: yes
+
+  - name: Installing dependencies
+    ansibile.builtin.command: npm install
+    args:
+      chdir: /app
+
+  - name: copy user service
+    ansible.builtin.copy:
+      name: user.service
+      src: user.service
+      dest: /etc/systemd/system/user.service
+
+  - name: deamon realod and start
+    ansible.builtin.systemd_service:
+      daemon_reload: true
+
+  # let's start after the data is loaded
+
+  - name: Copy mongodb repo
+    ansible.builtin.copy:
+      src: mongodb.repo
+      dest: /etc/yum.repos.d/mongodb.repo
+
+  - name: Install mongodb client
+    ansible.builtin.package:
+      name: mongodb-org-shell
+      state: present
+
+  - name: get the users count
+    ansible.builtin.command:  mongo --host mongodb.devops-practice.site --quiet --eval 'db = db.getSiblingDB("users"); db.users.count()'
+    register: user_count
+
+  # - name: print the count
+  #   ansible.builtin.debug:
+  #     msg: "product count: {{user_count}}"
+
+  - name: load user data
+    ansible.builtin.command: mongo --host mongodb.devops-practice.site < /app/schema/user.js
+    when: user_count.stdout == "0" # keep double quotes
+
+  - name: start and enable user
+    ansible.builtin.service:
+      name: user
+      state: restarted
+      enabled: yes
+
+
+
 
