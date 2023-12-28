@@ -14,10 +14,10 @@
     ansible.builtin.user:
       name: roboshop
 
-  - name: Recursively remove app directory
-    ansible.builtin.file:
-      path: /app
-      state: absent
+  # - name: Recursively remove app directory
+  #   ansible.builtin.file:
+  #     path: /home/centos/app/*
+  #     state: absent
 
   - name: creating app directory
     ansible.builtin.file:
@@ -42,7 +42,7 @@
 
   - name: copy user service
     ansible.builtin.copy:
-      name: user.service
+      #name: user.service
       src: user.service
       dest: /etc/systemd/system/user.service
 
